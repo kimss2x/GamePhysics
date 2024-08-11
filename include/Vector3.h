@@ -1,9 +1,14 @@
-﻿#ifndef VECTOR_H
-#define VECTOR_H
+﻿#ifndef VECTOR3_H
+#define VECTOR3_H
 
 #include <cmath>
 #include <iostream>
 #include "Angle.h"
+
+template<typename T> class Vector4;     // 포워드 선언 
+template<typename T> class Matrix3x3;   // 포워드 선언 
+template<typename T> class Matrix4x4;   // 포워드 선언 
+template<typename T> class Quaternion;  // 포워드 선언 
 
 template<typename T>
 class Vector3 {
@@ -12,6 +17,18 @@ public:
 
     Vector3(void);
     Vector3(T xi, T yi, T zi);
+
+    // Vector3를 Vector4로 변환
+    Vector4<T> ToVector4(T w = 1) const;
+
+    // Vector3를 회전 축으로 하는 Quaternion으로 변환
+    Quaternion<T> ToQuaternion(T angle) const;
+
+    // Vector3를 대각 행렬로 변환
+    Matrix3x3<T> ToMatrix3x3() const;
+
+    // Vector3를 대각 행렬로 변환
+    Matrix4x4<T> ToMatrix4x4() const;
 
     T Magnitude(void) const;
     void Normalize(void);
@@ -67,6 +84,4 @@ T ScalarTripleProduct(const Vector3<T>& u, const Vector3<T>& v, const Vector3<T>
 template<typename T>
 Vector3<T> VectorTripleProduct(const Vector3<T>& u, const Vector3<T>& v, const Vector3<T>& w);  // 벡터 삼중곱
 
-#include "Vector3.cpp" // 템플릿 클래스 정의를 포함하기 위해 필요
-
-#endif // VECTOR_H
+#endif // VECTOR3_H

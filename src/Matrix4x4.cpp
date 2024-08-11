@@ -1,4 +1,6 @@
 ﻿#include "Matrix4x4.h"
+#include "Vector4.h"
+#include "Angle.h"
 
 // 기본 생성자 정의
 template<typename T>
@@ -6,7 +8,8 @@ Matrix4x4<T>::Matrix4x4(void) :
     e11(0), e12(0), e13(0), e14(0), 
     e21(0), e22(0), e23(0), e24(0), 
     e31(0), e32(0), e33(0), e34(0), 
-    e41(0), e42(0), e43(0), e44(0) {}
+    e41(0), e42(0), e43(0), e44(0) 
+{}
 
 // 단위 행렬 생성
 template<typename T>

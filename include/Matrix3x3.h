@@ -1,8 +1,11 @@
 ﻿#ifndef MATRIX3X3_H
 #define MATRIX3X3_H
 
-#include "Vector3.h"
+#include <cmath>
+#include <iostream>
 #include <stdexcept>
+
+template<typename T> class Vector3; // 포워드 선언
 
 template<typename T>
 class Matrix3x3 {
@@ -65,7 +68,5 @@ public:
     template<typename U>
     friend Vector3<U> operator*(const Vector3<U>& v, const Matrix3x3<U>& m);
 };
-
-#include "Matrix3x3.cpp" // 템플릿 클래스의 정의를 포함
 
 #endif // MATRIX3X3_H

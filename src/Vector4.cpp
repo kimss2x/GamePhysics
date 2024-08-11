@@ -1,4 +1,9 @@
-﻿#include "Vector4.h"
+﻿#include "Vector3.h"
+#include "Vector4.h"
+#include "Quaternion.h"
+#include "Matrix3x3.h"
+#include "Matrix4x4.h"
+#include <stdexcept>  // 예외 처리를 위해 필요
 
 // 기본 생성자
 template<typename T>
@@ -7,6 +12,18 @@ Vector4<T>::Vector4(void) : x(0), y(0), z(0), w(0) {}
 // 매개변수가 있는 생성자
 template<typename T>
 Vector4<T>::Vector4(T xi, T yi, T zi, T wi) : x(xi), y(yi), z(zi), w(wi) {}
+
+// Vector4를 대각 행렬로 변환
+template<typename T>
+Matrix4x4<T> Vector4<T>::ToMatrix4x4() const {
+    Matrix4x4<T> mat;
+    mat.e11 = x;
+    mat.e22 = y;
+    mat.e33 = z;
+    mat.e44 = w;
+    return mat;
+}
+
 
 // 벡터의 크기(길이)를 계산
 template<typename T>
@@ -142,6 +159,19 @@ Vector4<T> VectorTripleProduct(const Vector4<T>& u, const Vector4<T>& v, const V
     return u ^ (v ^ w);  // u cross (v cross w)
 }
 
+// Matrix4x4와 Vector4의 곱셈
+template<typename T>
+Vector4<T> operator*(const Matrix4x4<T>& m, const Vector4<T>& v) {
+    return Vector4<T>(
+        m.e11 * v.x + m.e12 * v.y + m.e13 * v.z + m.e14 * v.w,
+        m.e21 * v.x + m.e22 * v.y + m.e23 * v.z + m.e24 * v.w,
+        m.e31 * v.x + m.e32 * v.y + m.e33 * v.z + m.e34 * v.w,
+        m.e41 * v.x + m.e42 * v.y + m.e43 * v.z + m.e44 * v.w
+    );
+}
+
 // 템플릿 명시적 인스턴스화 (필요한 경우 사용)
-template class Vector4<float>;
-template class Vector4<double>;
+template Vector4<double> operator/(const Vector4<double>& u, double s);
+template Vector4<double> operator*(const Vector4<double>& u, double s);
+template Vector4<double> operator*(double s, const Vector4<double>& u);
+template Vector4<double> operator*(const Matrix4x4<double>& m, const Vector4<double>& v);

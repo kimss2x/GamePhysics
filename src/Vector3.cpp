@@ -1,5 +1,8 @@
 ﻿#include "Vector3.h"
-#include <cmath>  // M_PI 및 수학 함수 사용을 위해 필요
+#include "Vector4.h"
+#include "Quaternion.h"
+#include "Matrix3x3.h"
+#include "Matrix4x4.h"
 #include <stdexcept>  // 예외 처리를 위해 필요
 
 // 생성자
@@ -9,6 +12,43 @@ Vector3<T>::Vector3(void) : x(0), y(0), z(0) {}
 // 생성자
 template<typename T>
 Vector3<T>::Vector3(T xi, T yi, T zi) : x(xi), y(yi), z(zi) {}
+
+// Vector3를 Vector4로 변환
+template<typename T>
+Vector4<T> Vector3<T>::ToVector4(T w) const {
+    return Vector4<T>(x, y, z, w);
+}
+
+// Vector3를 회전 축으로 하는 Quaternion으로 변환
+template<typename T>
+Quaternion<T> Vector3<T>::ToQuaternion(T angle) const {
+    Vector3<T> axis = *this;
+    axis.Normalize();
+    T halfAngle = angle / 2.0;
+    T sinHalfAngle = std::sin(halfAngle);
+    T cosHalfAngle = std::cos(halfAngle);
+
+    return Quaternion<T>(cosHalfAngle, axis.x * sinHalfAngle, axis.y * sinHalfAngle, axis.z * sinHalfAngle);
+}
+
+template<typename T>
+Matrix3x3<T> Vector3<T>::ToMatrix3x3() const {
+    Matrix3x3<T> mat;
+    mat.e11 = x;
+    mat.e22 = y;
+    mat.e33 = z;
+    return mat;
+}
+
+template<typename T>
+Matrix4x4<T> Vector3<T>::ToMatrix4x4() const {
+    Matrix4x4<T> mat;
+    mat.e11 = x;
+    mat.e22 = y;
+    mat.e33 = z;
+    mat.e44 = 1;
+    return mat;
+}
 
 // 벡터의 크기 계산
 template<typename T>
@@ -188,6 +228,20 @@ Vector3<T> Vector3<T>::ApplyRotationOrder(const std::string& order, const Vector
     return result;
 }
 
+// Matrix3x3와 Vector3의 곱셈
+template<typename T>
+Vector3<T> operator*(const Matrix3x3<T>& m, const Vector3<T>& v) {
+    return Vector3<T>(
+        m.e11 * v.x + m.e12 * v.y + m.e13 * v.z,
+        m.e21 * v.x + m.e22 * v.y + m.e23 * v.z,
+        m.e31 * v.x + m.e32 * v.y + m.e33 * v.z
+    );
+}
+
 // 템플릿 명시적 인스턴스화 (필요한 경우 사용)
 template class Vector3<float>;
 template class Vector3<double>;
+template Vector3<double> operator/(const Vector3<double>& u, double s);
+template Vector3<double> operator*(const Vector3<double>& u, double s);
+template Vector3<double> operator*(double s, const Vector3<double>& u);
+template Vector3<double> operator*(const Matrix3x3<double>& m, const Vector3<double>& v);

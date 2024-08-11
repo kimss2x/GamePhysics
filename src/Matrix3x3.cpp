@@ -1,8 +1,14 @@
 ﻿#include "Matrix3x3.h"
+#include "Vector3.h"
+#include "Angle.h"
 
 // 기본 생성자 정의
 template<typename T>
-Matrix3x3<T>::Matrix3x3(void) : e11(0), e12(0), e13(0), e21(0), e22(0), e23(0), e31(0), e32(0), e33(0) {}
+Matrix3x3<T>::Matrix3x3(void) : 
+    e11(0), e12(0), e13(0), 
+    e21(0), e22(0), e23(0), 
+    e31(0), e32(0), e33(0) 
+{}
 
 // 단위 행렬 생성
 template<typename T>

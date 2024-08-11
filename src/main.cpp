@@ -1,102 +1,89 @@
 ﻿#include <iostream>
-#include <fstream>
-#include "Quaternion.h"
-#include "Vector.h"
-#include "Logging.h"
+#include "PhysicsObject.h"
+#include "Constants.h"
 
-// 전역 변수 선언
-double Vm, Alpha, Gamma, L, Yb, X, Y, Z;
-double Length, Width, Height;
-int status, time;
+// 시뮬레이션에 필요한 변수들
+double Vm = 100.0;    // 투사체의 초기 탄속, m/s
+double Alpha = 45.0;  // Pitch (각도), degrees
+double Gamma = 0.0;   // Yaw (각도), degrees
 
-// 사용자가 입력한 변수를 받아 전역 변수에 저장하는 함수
-void GetUserInput() {
-    std::cout << "Enter initial velocity (Vm): ";
-    std::cin >> Vm;
+double Yb = 10.0;     // 대포의 초기 높이, m
 
-    std::cout << "Enter launch angle (Alpha): ";
-    std::cin >> Alpha;
+double X = 100.0;     // 목표물의 중심 x좌표, m
+double Z = 50.0;      // 목표물의 중심 z좌표, m
+double Length = 10.0; // 목표물의 길이(x축), m
+double Width = 10.0;  // 목표물의 너비(z축), m
+double Height = 10.0; // 목표물의 높이(y축), m
 
-    std::cout << "Enter launch angle (Gamma): ";
-    std::cin >> Gamma;
+double time = 0.0;    // 포탄이 대포에서 발사된 순간의 시간, seconds
+double tInc = 0.1;    // 시뮬레이션 중에 한 단계마다 증가시킬 시간 값, seconds
 
-    std::cout << "Enter launch distance (L): ";
-    std::cin >> L;
+// 시뮬레이션의 상태를 나타내는 변수
+int status = 0;
 
-    std::cout << "Enter initial height (Yb): ";
-    std::cin >> Yb;
+// 시뮬레이션 함수
+int DoSimulation(PhysicsObject& projectile, PhysicsObject& target) {
+    // 시간에 따른 위치 계산
+    projectile.Update(tInc);
 
-    std::cout << "Enter target X coordinate: ";
-    std::cin >> X;
-
-    std::cout << "Enter target Y coordinate: ";
-    std::cin >> Y;
-
-    std::cout << "Enter target Z coordinate: ";
-    std::cin >> Z;
-
-    std::cout << "Enter target length: ";
-    std::cin >> Length;
-
-    std::cout << "Enter target width: ";
-    std::cin >> Width;
-
-    std::cout << "Enter target height: ";
-    std::cin >> Height;
-}
-
-// 시뮬레이션을 수행하는 함수 (간단한 예시)
-int DoSimulation() {
-    // 간단한 시뮬레이션 로직
-    time += 1; // 시간을 증가시킴
-
-    // 포탄이 목표물에 맞았는지 여부를 판단 (단순화된 조건)
-    if (X == Vm * time && Y == Vm * time) {
-        return 1; // Direct Hit
+    // 목표물 충돌 확인
+    if (projectile.getPosition().y <= 0) {  // 포탄이 땅에 떨어졌다면
+        if (projectile.getPosition().x >= X && projectile.getPosition().x <= (X + Length) &&
+            projectile.getPosition().z >= Z && projectile.getPosition().z <= (Z + Width)) {
+            return 1;  // Direct Hit
+        }
+        return 2;  // Missed Target
     }
 
-    // 포탄이 땅에 떨어졌는지 여부를 판단 (단순화된 조건)
-    if (Yb + Vm * time < 0) {
-        return 2; // Missed Target
+    // 시간 초과 확인 (예: 60초 이상 시뮬레이션이 진행되었을 때)
+    if (time > 60) {
+        return 3;  // Simulation Timed Out
     }
 
-    // 타임아웃 조건을 가정 (예: 시간이 너무 오래 걸렸을 때)
-    if (time > 100) {
-        return 3; // Simulation Timed Out
-    }
-
-    return 0; // 계속 시뮬레이션 진행
-}
-
-// 화면 업데이트 함수 (간단한 예시)
-void UpdateScreen() {
-    std::cout << "Simulating... Time: " << time << std::endl;
+    return 0;  // 계속 시뮬레이션
 }
 
 int main() {
-    // 유저 입력을 받아 전역 변수에 저장
-    GetUserInput();
+    // 대포 발사체 초기화
+    PhysicsObject projectile;
+    projectile.setPosition(Vector3<double>(0.0, Yb, 0.0));
+    projectile.setMass(1.0);
 
-    // time과 status 변수를 초기화
-    status = 0;
-    time = 0;
+    // 초기 속도 설정
+    Vector3<double> initialVelocity = Vector3<double>(Vm, 0.0, 0.0);
+    initialVelocity = initialVelocity.Pitch(Alpha);  // Pitch 회전 (X축 기준 회전)
+    initialVelocity = initialVelocity.Yaw(Gamma);    // Yaw 회전 (Y축 기준 회전)
+    projectile.setVelocity(initialVelocity);
 
-    // 목표물을 맞히거나, 포탄이 땅에 떨어지거나, 타임아웃 될 때까지 시간단계별로 시뮬레이션을 돌린다.
+    // 중력 적용
+    projectile.ApplyForce(Vector3<double>(0.0, -projectile.getMass() * Constants<double>::GRAVITY, 0.0));
+
+    // 목표물 초기화
+    PhysicsObject target;
+    target.setPosition(Vector3<double>(X, 0.0, Z));
+    target.setMass(100.0);  // 임의의 질량
+    target.setScale(Vector3<double>(Length, Height, Width));
+
+    // 시뮬레이션 루프
     while (status == 0) {
-        // 다음 시간단계를 시뮬레이션
-        status = DoSimulation();
+        // 시뮬레이션 진행
+        status = DoSimulation(projectile, target);
 
-        // 화면 업데이트
-        UpdateScreen();
+        // 화면 업데이트 (여기서는 간단히 출력)
+        std::cout << "Time: " << time << "s, Position: " << projectile.getPosition() << std::endl;
+
+        // 시간 증가
+        time += tInc;
     }
 
-    // 결과를 보고
-    if (status == 1)
+    // 결과 출력
+    if (status == 1) {
         std::cout << "Direct Hit!" << std::endl;
-    else if (status == 2)
+    } else if (status == 2) {
         std::cout << "Missed Target!" << std::endl;
-    else if (status == 3)
+    } else if (status == 3) {
         std::cout << "Simulation Timed Out!" << std::endl;
+    }
 
     return 0;
 }

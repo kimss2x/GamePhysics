@@ -1,8 +1,11 @@
 ﻿#ifndef MATRIX4X4_H
 #define MATRIX4X4_H
 
-#include "Vector4.h"
+#include <cmath>
+#include <iostream>
 #include <stdexcept>
+
+template<typename T> class Vector4; // 포워드 선언
 
 template<typename T>
 class Matrix4x4 {
@@ -65,8 +68,5 @@ public:
     template<typename U>
     friend Vector4<U> operator*(const Vector4<U>& v, const Matrix4x4<U>& m);
 };
-
-// 템플릿 정의를 포함하기 위해 필요한 cpp 파일 포함
-#include "Matrix4x4.cpp"
 
 #endif // MATRIX4X4_H
