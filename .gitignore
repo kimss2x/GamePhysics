@@ -1,0 +1,22 @@
+﻿# 빌드 결과물 제외
+/build/
+*.exe
+*.out
+*.o
+
+# 로그 파일 제외
+/log/
+*.log
+
+# 운영체제별 파일 제외
+.DS_Store
+Thumbs.db
+
+# Visual Studio Code 설정 파일 제외
+.vscode/
+
+# 기타 CMake 생성 파일들 제외
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
