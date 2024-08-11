@@ -1,45 +1,98 @@
 ﻿#include "Matrix3x3.h"
-#include <stdexcept>  
 
 // 기본 생성자 정의
-Matrix3x3::Matrix3x3(void) {
-    e11 = 0;
-    e12 = 0;
-    e13 = 0;
-    e21 = 0;
-    e22 = 0;
-    e23 = 0;
-    e31 = 0;
-    e32 = 0;
-    e33 = 0;
+template<typename T>
+Matrix3x3<T>::Matrix3x3(void) : e11(0), e12(0), e13(0), e21(0), e22(0), e23(0), e31(0), e32(0), e33(0) {}
+
+// 단위 행렬 생성
+template<typename T>
+Matrix3x3<T> Matrix3x3<T>::identity() {
+    return Matrix3x3(
+        1, 0, 0,
+        0, 1, 0,
+        0, 0, 1
+    );
+}
+
+// 행렬 대각합
+template<typename T>
+T Matrix3x3<T>::trace() const {
+    return e11 + e22 + e33;
+}
+
+// 크기 행렬 생성
+template<typename T>
+Matrix3x3<T> Matrix3x3<T>::scale(T sx, T sy, T sz) {
+    return Matrix3x3(
+        sx, 0,  0,
+        0,  sy, 0,
+        0,  0,  sz
+    );
+}
+
+// X축 기준 회전 행렬 생성 (Pitch)
+template<typename T>
+Matrix3x3<T> Matrix3x3<T>::rotationX(T angle) {
+    T rad = DegToRad(angle);
+    T cosA = std::cos(rad);
+    T sinA = std::sin(rad);
+
+    return Matrix3x3(
+        1,  0,     0,
+        0,  cosA, -sinA,
+        0,  sinA,  cosA
+    );
+}
+
+// Y축 기준 회전 행렬 생성 (Yaw)
+template<typename T>
+Matrix3x3<T> Matrix3x3<T>::rotationY(T angle) {
+    T rad = DegToRad(angle);
+    T cosA = std::cos(rad);
+    T sinA = std::sin(rad);
+
+    return Matrix3x3(
+        cosA,  0, sinA,
+        0,     1, 0,
+        -sinA, 0, cosA
+    );
+}
+
+// Z축 기준 회전 행렬 생성 (Roll)
+template<typename T>
+Matrix3x3<T> Matrix3x3<T>::rotationZ(T angle) {
+    T rad = DegToRad(angle);
+    T cosA = std::cos(rad);
+    T sinA = std::sin(rad);
+
+    return Matrix3x3(
+        cosA, -sinA, 0,
+        sinA,  cosA, 0,
+        0,     0,    1
+    );
 }
 
 // 매개변수가 있는 생성자 정의
-Matrix3x3::Matrix3x3(
-    float r1c1, float r1c2, float r1c3,
-    float r2c1, float r2c2, float r2c3,
-    float r3c1, float r3c2, float r3c3
-) {
-    e11 = r1c1;
-    e12 = r1c2;
-    e13 = r1c3;
-    e21 = r2c1;
-    e22 = r2c2;
-    e23 = r2c3;
-    e31 = r3c1;
-    e32 = r3c2;
-    e33 = r3c3;
-}
+template<typename T>
+Matrix3x3<T>::Matrix3x3(
+    T r1c1, T r1c2, T r1c3,
+    T r2c1, T r2c2, T r2c3,
+    T r3c1, T r3c2, T r3c3
+) : e11(r1c1), e12(r1c2), e13(r1c3),
+    e21(r2c1), e22(r2c2), e23(r2c3),
+    e31(r3c1), e32(r3c2), e33(r3c3) {}
 
 // 행렬식
-float Matrix3x3::determinant() const {
+template<typename T>
+T Matrix3x3<T>::determinant() const {
     return e11 * (e22 * e33 - e23 * e32) -
            e12 * (e21 * e33 - e23 * e31) +
            e13 * (e21 * e32 - e22 * e31);
 }
 
 // 전치 행렬
-Matrix3x3 Matrix3x3::transpose() const {
+template<typename T>
+Matrix3x3<T> Matrix3x3<T>::transpose() const {
     return Matrix3x3(
         e11, e21, e31,
         e12, e22, e32,
@@ -48,12 +101,13 @@ Matrix3x3 Matrix3x3::transpose() const {
 }
 
 // 역행렬
-Matrix3x3 Matrix3x3::inverse() const {
-    float det = determinant();
+template<typename T>
+Matrix3x3<T> Matrix3x3<T>::inverse() const {
+    T det = determinant();
     if (det == 0) {
         throw std::runtime_error("Matrix is not invertible");
     }
-    float invDet = 1.0f / det;
+    T invDet = static_cast<T>(1.0) / det;
 
     return Matrix3x3(
         (e22 * e33 - e23 * e32) * invDet,
@@ -69,7 +123,8 @@ Matrix3x3 Matrix3x3::inverse() const {
 }
 
 // 행렬 합: += 연산자
-Matrix3x3& Matrix3x3::operator+=(const Matrix3x3& m) {
+template<typename T>
+Matrix3x3<T>& Matrix3x3<T>::operator+=(const Matrix3x3& m) {
     e11 += m.e11;
     e12 += m.e12;
     e13 += m.e13;
@@ -83,7 +138,8 @@ Matrix3x3& Matrix3x3::operator+=(const Matrix3x3& m) {
 }
 
 // 행렬 뺄셈: -= 연산자
-Matrix3x3& Matrix3x3::operator-=(const Matrix3x3& m) {
+template<typename T>
+Matrix3x3<T>& Matrix3x3<T>::operator-=(const Matrix3x3& m) {
     e11 -= m.e11;
     e12 -= m.e12;
     e13 -= m.e13;
@@ -97,7 +153,8 @@ Matrix3x3& Matrix3x3::operator-=(const Matrix3x3& m) {
 }
 
 // 스칼라 곱: *= 연산자
-Matrix3x3& Matrix3x3::operator*=(float s) {
+template<typename T>
+Matrix3x3<T>& Matrix3x3<T>::operator*=(T s) {
     e11 *= s;
     e12 *= s;
     e13 *= s;
@@ -111,7 +168,8 @@ Matrix3x3& Matrix3x3::operator*=(float s) {
 }
 
 // 스칼라 나눗셈: /= 연산자
-Matrix3x3& Matrix3x3::operator/=(float s) {
+template<typename T>
+Matrix3x3<T>& Matrix3x3<T>::operator/=(T s) {
     e11 /= s;
     e12 /= s;
     e13 /= s;
@@ -125,7 +183,8 @@ Matrix3x3& Matrix3x3::operator/=(float s) {
 }
 
 // 행렬 합: + 연산자
-Matrix3x3 Matrix3x3::operator+(const Matrix3x3& m) const {
+template<typename T>
+Matrix3x3<T> Matrix3x3<T>::operator+(const Matrix3x3& m) const {
     return Matrix3x3(
         e11 + m.e11, e12 + m.e12, e13 + m.e13,
         e21 + m.e21, e22 + m.e22, e23 + m.e23,
@@ -134,7 +193,8 @@ Matrix3x3 Matrix3x3::operator+(const Matrix3x3& m) const {
 }
 
 // 행렬 뺄셈: - 연산자
-Matrix3x3 Matrix3x3::operator-(const Matrix3x3& m) const {
+template<typename T>
+Matrix3x3<T> Matrix3x3<T>::operator-(const Matrix3x3& m) const {
     return Matrix3x3(
         e11 - m.e11, e12 - m.e12, e13 - m.e13,
         e21 - m.e21, e22 - m.e22, e23 - m.e23,
@@ -143,7 +203,8 @@ Matrix3x3 Matrix3x3::operator-(const Matrix3x3& m) const {
 }
 
 // 행렬 곱: * 연산자
-Matrix3x3 Matrix3x3::operator*(const Matrix3x3& m) const {
+template<typename T>
+Matrix3x3<T> Matrix3x3<T>::operator*(const Matrix3x3& m) const {
     return Matrix3x3(
         e11 * m.e11 + e12 * m.e21 + e13 * m.e31,
         e11 * m.e12 + e12 * m.e22 + e13 * m.e32,
@@ -158,7 +219,8 @@ Matrix3x3 Matrix3x3::operator*(const Matrix3x3& m) const {
 }
 
 // 스칼라 곱: * 연산자
-Matrix3x3 Matrix3x3::operator*(float s) const {
+template<typename T>
+Matrix3x3<T> Matrix3x3<T>::operator*(T s) const {
     return Matrix3x3(
         e11 * s, e12 * s, e13 * s,
         e21 * s, e22 * s, e23 * s,
@@ -166,11 +228,36 @@ Matrix3x3 Matrix3x3::operator*(float s) const {
     );
 }
 
+// 행렬과 벡터 간의 곱셈
+template<typename T>
+Vector3<T> operator*(const Matrix3x3<T>& m, const Vector3<T>& v) {
+    return Vector3<T>(
+        m.e11 * v.x + m.e12 * v.y + m.e13 * v.z,
+        m.e21 * v.x + m.e22 * v.y + m.e23 * v.z,
+        m.e31 * v.x + m.e32 * v.y + m.e33 * v.z
+    );
+}
+
+// 벡터와 행렬 간의 곱셈
+template<typename T>
+Vector3<T> operator*(const Vector3<T>& v, const Matrix3x3<T>& m) {
+    return Vector3<T>(
+        v.x * m.e11 + v.y * m.e21 + v.z * m.e31,
+        v.x * m.e12 + v.y * m.e22 + v.z * m.e32,
+        v.x * m.e13 + v.y * m.e23 + v.z * m.e33
+    );
+}
+
 // 스칼라 나눗셈: / 연산자
-Matrix3x3 Matrix3x3::operator/(float s) const {
+template<typename T>
+Matrix3x3<T> Matrix3x3<T>::operator/(T s) const {
     return Matrix3x3(
         e11 / s, e12 / s, e13 / s,
         e21 / s, e22 / s, e23 / s,
         e31 / s, e32 / s, e33 / s
     );
 }
+
+// 템플릿 명시적 인스턴스화 (필요한 경우 사용)
+template class Matrix3x3<float>;
+template class Matrix3x3<double>;
