@@ -3,6 +3,7 @@
 #include "Quaternion.h"
 #include "Matrix3x3.h"
 #include "Matrix4x4.h"
+#include "Constants.h"
 #include <stdexcept>  // 예외 처리를 위해 필요
 
 // 생성자
@@ -180,7 +181,7 @@ Vector3<T> VectorTripleProduct(const Vector3<T>& u, const Vector3<T>& v, const V
 // Pitch 회전 (X축 기준 회전)
 template<typename T>
 Vector3<T> Vector3<T>::Pitch(T angle) const {
-    T rad = angle * static_cast<T>(M_PI) / static_cast<T>(180.0);  // 각도를 라디안으로 변환
+    T rad = angle * Constants<T>::PI / static_cast<T>(180.0);  // 각도를 라디안으로 변환
     T cosAngle = std::cos(rad);
     T sinAngle = std::sin(rad);
     return Vector3(x, y * cosAngle - z * sinAngle, y * sinAngle + z * cosAngle);
@@ -189,7 +190,7 @@ Vector3<T> Vector3<T>::Pitch(T angle) const {
 // Yaw 회전 (Y축 기준 회전)
 template<typename T>
 Vector3<T> Vector3<T>::Yaw(T angle) const {
-    T rad = angle * static_cast<T>(M_PI) / static_cast<T>(180.0);  // 각도를 라디안으로 변환
+    T rad = angle * Constants<T>::PI / static_cast<T>(180.0);  // 각도를 라디안으로 변환
     T cosAngle = std::cos(rad);
     T sinAngle = std::sin(rad);
     return Vector3(x * cosAngle + z * sinAngle, y, -x * sinAngle + z * cosAngle);
@@ -198,12 +199,11 @@ Vector3<T> Vector3<T>::Yaw(T angle) const {
 // Roll 회전 (Z축 기준 회전)
 template<typename T>
 Vector3<T> Vector3<T>::Roll(T angle) const {
-    T rad = angle * static_cast<T>(M_PI) / static_cast<T>(180.0);  // 각도를 라디안으로 변환
+    T rad = angle * Constants<T>::PI / static_cast<T>(180.0);  // 각도를 라디안으로 변환
     T cosAngle = std::cos(rad);
     T sinAngle = std::sin(rad);
     return Vector3(x * cosAngle - y * sinAngle, x * sinAngle + y * cosAngle, z);
 }
-
 // 회전 순서에 따른 회전 적용
 template<typename T>
 Vector3<T> Vector3<T>::ApplyRotationOrder(const std::string& order, const Vector3& angles) const {

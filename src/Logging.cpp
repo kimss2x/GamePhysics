@@ -1,6 +1,18 @@
-﻿#include "Logging.h"
-#include <ctime>  // for std::time and std::localtime
-#include <iomanip>  // for std::setprecision
+﻿#include <ctime>        // for std::time and std::localtime
+#include <iomanip>      // for std::setprecision
+#include <fstream>      // 파일 입출력을 위해 필요
+#include <sys/stat.h>   // 디렉토리 생성 (Unix 계열에서 사용)
+#include <direct.h>     // 디렉토리 생성 (Windows에서 사용)
+#include "Logging.h"
+
+// 디렉토리 생성 함수 (Windows와 Unix 계열을 지원)
+void createDirectory(const std::string& dir) {
+#ifdef _WIN32
+    _mkdir(dir.c_str());
+#else
+    mkdir(dir.c_str(), 0733);
+#endif
+}
 
 void logPrint(std::ostream& outStream, const std::string& message) {
     outStream << message << std::endl;
@@ -16,7 +28,11 @@ std::string createLogFileName(const std::string& projectName, const std::string&
     char date[100];
     std::strftime(date, sizeof(date), "%Y-%m-%d", std::localtime(&t));
 
-    std::string logFileName = "log/" + projectName + "_" + date + "_" + functionName + "_log.txt";
+    // 로그 디렉토리 생성
+    std::string logDir = "log";
+    createDirectory(logDir);
+
+    std::string logFileName = logDir + "/" + projectName + "_" + date + "_" + functionName + "_log.txt";
     return logFileName;
 }
 

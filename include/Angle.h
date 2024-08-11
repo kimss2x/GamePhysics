@@ -1,6 +1,8 @@
 ﻿#ifndef ANGLE_H
 #define ANGLE_H
 
+#include <iostream>
+
 template<typename T>
 T DegToRad(T deg);
 

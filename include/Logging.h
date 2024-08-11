@@ -2,6 +2,7 @@
 #define LOGGING_H
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include "Vector3.h"
 #include "Vector4.h"
@@ -33,5 +34,8 @@ void printMatrix3x3(std::ostream& outStream, const Matrix3x3<T>& m, const std::s
 
 template<typename T>
 void printMatrix4x4(std::ostream& outStream, const Matrix4x4<T>& m, const std::string& name);
+
+// 로그 디렉토리 존재 확인 및 생성 함수
+void ensureLogDirectoryExists(const std::string& directoryPath);
 
 #endif // LOGGING_H
