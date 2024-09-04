@@ -1,4 +1,7 @@
-﻿#include "Matrix3x3.h"
+﻿#ifndef MATRIX3X3_CPP
+#define MATRIX3X3_CPP
+
+#include "Matrix3x3.h"
 #include "Vector3.h"
 #include "Angle.h"
 
@@ -39,7 +42,7 @@ Matrix3x3<T> Matrix3x3<T>::scale(T sx, T sy, T sz) {
 // X축 기준 회전 행렬 생성 (Pitch)
 template<typename T>
 Matrix3x3<T> Matrix3x3<T>::rotationX(T angle) {
-    T rad = DegToRad(angle);
+    T rad = Angle::degToRad(angle);
     T cosA = std::cos(rad);
     T sinA = std::sin(rad);
 
@@ -53,7 +56,7 @@ Matrix3x3<T> Matrix3x3<T>::rotationX(T angle) {
 // Y축 기준 회전 행렬 생성 (Yaw)
 template<typename T>
 Matrix3x3<T> Matrix3x3<T>::rotationY(T angle) {
-    T rad = DegToRad(angle);
+    T rad = Angle::degToRad(angle);
     T cosA = std::cos(rad);
     T sinA = std::sin(rad);
 
@@ -67,7 +70,7 @@ Matrix3x3<T> Matrix3x3<T>::rotationY(T angle) {
 // Z축 기준 회전 행렬 생성 (Roll)
 template<typename T>
 Matrix3x3<T> Matrix3x3<T>::rotationZ(T angle) {
-    T rad = DegToRad(angle);
+    T rad = Angle::degToRad(angle);
     T cosA = std::cos(rad);
     T sinA = std::sin(rad);
 
@@ -77,6 +80,30 @@ Matrix3x3<T> Matrix3x3<T>::rotationZ(T angle) {
         0,     0,    1
     );
 }
+
+template<typename T>
+Matrix3x3<T> Matrix3x3<T>::rotation(T pitch, T yaw, T roll, const std::string& order) {
+    Matrix3x3<T> result = Matrix3x3<T>::identity(); // 기본값으로 단위 행렬
+
+    for (char axis : order) {
+        switch (axis) {
+        case 'x': // X축 기준 회전 (Pitch)
+            result = result * Matrix3x3<T>::rotationX(pitch);
+            break;
+        case 'y': // Y축 기준 회전 (Yaw)
+            result = result * Matrix3x3<T>::rotationY(yaw);
+            break;
+        case 'z': // Z축 기준 회전 (Roll)
+            result = result * Matrix3x3<T>::rotationZ(roll);
+            break;
+        default:
+            throw std::invalid_argument("Invalid rotation axis");
+        }
+    }
+
+    return result;
+}
+
 
 // 매개변수가 있는 생성자 정의
 template<typename T>
@@ -176,15 +203,12 @@ Matrix3x3<T>& Matrix3x3<T>::operator*=(T s) {
 // 스칼라 나눗셈: /= 연산자
 template<typename T>
 Matrix3x3<T>& Matrix3x3<T>::operator/=(T s) {
-    e11 /= s;
-    e12 /= s;
-    e13 /= s;
-    e21 /= s;
-    e22 /= s;
-    e23 /= s;
-    e31 /= s;
-    e32 /= s;
-    e33 /= s;
+    if (s == 0) {
+        throw std::runtime_error("Division by zero in Matrix3x3::operator/=");
+    }
+    e11 /= s; e12 /= s; e13 /= s;
+    e21 /= s; e22 /= s; e23 /= s;
+    e31 /= s; e32 /= s; e33 /= s;
     return *this;
 }
 
@@ -257,6 +281,9 @@ Vector3<T> operator*(const Vector3<T>& v, const Matrix3x3<T>& m) {
 // 스칼라 나눗셈: / 연산자
 template<typename T>
 Matrix3x3<T> Matrix3x3<T>::operator/(T s) const {
+    if (s == 0) {
+        throw std::runtime_error("Division by zero in Matrix3x3::operator/");
+    }
     return Matrix3x3(
         e11 / s, e12 / s, e13 / s,
         e21 / s, e22 / s, e23 / s,
@@ -267,3 +294,5 @@ Matrix3x3<T> Matrix3x3<T>::operator/(T s) const {
 // 템플릿 명시적 인스턴스화 (필요한 경우 사용)
 template class Matrix3x3<float>;
 template class Matrix3x3<double>;
+
+#endif // MATRIX3X3_CPP

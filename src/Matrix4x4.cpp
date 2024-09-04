@@ -1,4 +1,7 @@
-﻿#include "Matrix4x4.h"
+﻿#ifndef MATRIX4X4_CPP
+#define MATRIX4X4_CPP
+
+#include "Matrix4x4.h"
 #include "Vector4.h"
 #include "Angle.h"
 
@@ -42,7 +45,7 @@ Matrix4x4<T> Matrix4x4<T>::scale(T sx, T sy, T sz, T sw) {
 // X축 기준 회전 행렬 생성 (Pitch)
 template<typename T>
 Matrix4x4<T> Matrix4x4<T>::rotationX(T angle) {
-    T rad = DegToRad(angle);
+    T rad = Angle::degToRad(angle);
     T cosA = std::cos(rad);
     T sinA = std::sin(rad);
 
@@ -57,7 +60,7 @@ Matrix4x4<T> Matrix4x4<T>::rotationX(T angle) {
 // Y축 기준 회전 행렬 생성 (Yaw)
 template<typename T>
 Matrix4x4<T> Matrix4x4<T>::rotationY(T angle) {
-    T rad = DegToRad(angle);
+    T rad = Angle::degToRad(angle);
     T cosA = std::cos(rad);
     T sinA = std::sin(rad);
 
@@ -72,7 +75,7 @@ Matrix4x4<T> Matrix4x4<T>::rotationY(T angle) {
 // Z축 기준 회전 행렬 생성 (Roll)
 template<typename T>
 Matrix4x4<T> Matrix4x4<T>::rotationZ(T angle) {
-    T rad = DegToRad(angle);
+    T rad = Angle::degToRad(angle);
     T cosA = std::cos(rad);
     T sinA = std::sin(rad);
 
@@ -83,6 +86,30 @@ Matrix4x4<T> Matrix4x4<T>::rotationZ(T angle) {
         0,     0,    0, 1
     );
 }
+
+template<typename T>
+Matrix4x4<T> rotation(T pitch, T yaw, T roll, const std::string& order) {
+    Matrix4x4<T> result = Matrix4x4<T>::identity(); // 기본값으로 단위 행렬
+
+    for (char axis : order) {
+        switch (axis) {
+        case 'x': // X축 기준 회전 (Pitch)
+            result = result * rotationX(pitch);
+            break;
+        case 'y': // Y축 기준 회전 (Yaw)
+            result = result * rotationY(yaw);
+            break;
+        case 'z': // Z축 기준 회전 (Roll)
+            result = result * rotationZ(roll);
+            break;
+        default:
+            throw std::invalid_argument("Invalid rotation axis");
+        }
+    }
+
+    return result;
+}
+
 
 // 매개변수가 있는 생성자 정의
 template<typename T>
@@ -135,97 +162,75 @@ Matrix4x4<T> Matrix4x4<T>::inverse() const {
     }
     T invDet = static_cast<T>(1.0) / det;
 
-    // 4x4 행렬의 역행렬 계산
+    // 소행렬식(cofactor)을 계산하여 역행렬을 구함
     return Matrix4x4(
-        // 각 요소의 계산식은 생략되었으나, 여기서 계산해야 합니다.
-    ) * invDet;
+        // 첫 번째 행
+        (e22 * (e33 * e44 - e34 * e43) - e23 * (e32 * e44 - e34 * e42) + e24 * (e32 * e43 - e33 * e42)) * invDet,
+        -(e12 * (e33 * e44 - e34 * e43) - e13 * (e32 * e44 - e34 * e42) + e14 * (e32 * e43 - e33 * e42)) * invDet,
+        (e12 * (e23 * e44 - e24 * e43) - e13 * (e22 * e44 - e24 * e42) + e14 * (e22 * e43 - e23 * e42)) * invDet,
+        -(e12 * (e23 * e34 - e24 * e33) - e13 * (e22 * e34 - e24 * e32) + e14 * (e22 * e33 - e23 * e32)) * invDet,
+
+        // 두 번째 행
+        -(e21 * (e33 * e44 - e34 * e43) - e23 * (e31 * e44 - e34 * e41) + e24 * (e31 * e43 - e33 * e41)) * invDet,
+        (e11 * (e33 * e44 - e34 * e43) - e13 * (e31 * e44 - e34 * e41) + e14 * (e31 * e43 - e33 * e41)) * invDet,
+        -(e11 * (e23 * e44 - e24 * e43) - e13 * (e21 * e44 - e24 * e41) + e14 * (e21 * e43 - e23 * e41)) * invDet,
+        (e11 * (e23 * e34 - e24 * e33) - e13 * (e21 * e34 - e24 * e31) + e14 * (e21 * e33 - e23 * e31)) * invDet,
+
+        // 세 번째 행
+        (e21 * (e32 * e44 - e34 * e42) - e22 * (e31 * e44 - e34 * e41) + e24 * (e31 * e42 - e32 * e41)) * invDet,
+        -(e11 * (e32 * e44 - e34 * e42) - e12 * (e31 * e44 - e34 * e41) + e14 * (e31 * e42 - e32 * e41)) * invDet,
+        (e11 * (e22 * e44 - e24 * e42) - e12 * (e21 * e44 - e24 * e41) + e14 * (e21 * e42 - e22 * e41)) * invDet,
+        -(e11 * (e22 * e34 - e24 * e32) - e12 * (e21 * e34 - e24 * e31) + e14 * (e21 * e32 - e22 * e31)) * invDet,
+
+        // 네 번째 행
+        -(e21 * (e32 * e43 - e33 * e42) - e22 * (e31 * e43 - e33 * e41) + e23 * (e31 * e42 - e32 * e41)) * invDet,
+        (e11 * (e32 * e43 - e33 * e42) - e12 * (e31 * e43 - e33 * e41) + e13 * (e31 * e42 - e32 * e41)) * invDet,
+        -(e11 * (e22 * e43 - e23 * e42) - e12 * (e21 * e43 - e23 * e41) + e13 * (e21 * e42 - e22 * e41)) * invDet,
+        (e11 * (e22 * e33 - e23 * e32) - e12 * (e21 * e33 - e23 * e31) + e13 * (e21 * e32 - e22 * e31)) * invDet
+    );
 }
+
 
 // 행렬 합: += 연산자
 template<typename T>
 Matrix4x4<T>& Matrix4x4<T>::operator+=(const Matrix4x4& m) {
-    e11 += m.e11;
-    e12 += m.e12;
-    e13 += m.e13;
-    e14 += m.e14;
-    e21 += m.e21;
-    e22 += m.e22;
-    e23 += m.e23;
-    e24 += m.e24;
-    e31 += m.e31;
-    e32 += m.e32;
-    e33 += m.e33;
-    e34 += m.e34;
-    e41 += m.e41;
-    e42 += m.e42;
-    e43 += m.e43;
-    e44 += m.e44;
+    e11 += m.e11; e12 += m.e12; e13 += m.e13; e14 += m.e14;
+    e21 += m.e21; e22 += m.e22; e23 += m.e23; e24 += m.e24;
+    e31 += m.e31; e32 += m.e32; e33 += m.e33; e34 += m.e34;
+    e41 += m.e41; e42 += m.e42; e43 += m.e43; e44 += m.e44;
     return *this;
 }
 
 // 행렬 뺄셈: -= 연산자
 template<typename T>
 Matrix4x4<T>& Matrix4x4<T>::operator-=(const Matrix4x4& m) {
-    e11 -= m.e11;
-    e12 -= m.e12;
-    e13 -= m.e13;
-    e14 -= m.e14;
-    e21 -= m.e21;
-    e22 -= m.e22;
-    e23 -= m.e23;
-    e24 -= m.e24;
-    e31 -= m.e31;
-    e32 -= m.e32;
-    e33 -= m.e33;
-    e34 -= m.e34;
-    e41 -= m.e41;
-    e42 -= m.e42;
-    e43 -= m.e43;
-    e44 -= m.e44;
+    e11 -= m.e11; e12 -= m.e12; e13 -= m.e13; e14 -= m.e14;
+    e21 -= m.e21; e22 -= m.e22; e23 -= m.e23; e24 -= m.e24;
+    e31 -= m.e31; e32 -= m.e32; e33 -= m.e33; e34 -= m.e34;
+    e41 -= m.e41; e42 -= m.e42; e43 -= m.e43; e44 -= m.e44;
     return *this;
 }
 
 // 스칼라 곱: *= 연산자
 template<typename T>
 Matrix4x4<T>& Matrix4x4<T>::operator*=(T s) {
-    e11 *= s;
-    e12 *= s;
-    e13 *= s;
-    e14 *= s;
-    e21 *= s;
-    e22 *= s;
-    e23 *= s;
-    e24 *= s;
-    e31 *= s;
-    e32 *= s;
-    e33 *= s;
-    e34 *= s;
-    e41 *= s;
-    e42 *= s;
-    e43 *= s;
-    e44 *= s;
+    e11 *= s; e12 *= s; e13 *= s; e14 *= s;
+    e21 *= s; e22 *= s; e23 *= s; e24 *= s;
+    e31 *= s; e32 *= s; e33 *= s; e34 *= s;
+    e41 *= s; e42 *= s; e43 *= s; e44 *= s;
     return *this;
 }
 
 // 스칼라 나눗셈: /= 연산자
 template<typename T>
 Matrix4x4<T>& Matrix4x4<T>::operator/=(T s) {
-    e11 /= s;
-    e12 /= s;
-    e13 /= s;
-    e14 /= s;
-    e21 /= s;
-    e22 /= s;
-    e23 /= s;
-    e24 /= s;
-    e31 /= s;
-    e32 /= s;
-    e33 /= s;
-    e34 /= s;
-    e41 /= s;
-    e42 /= s;
-    e43 /= s;
-    e44 /= s;
+    if (s == 0) {
+        throw std::runtime_error("Division by zero in Matrix4x4::operator/=");
+    }
+    e11 /= s; e12 /= s; e13 /= s; e14 /= s;
+    e21 /= s; e22 /= s; e23 /= s; e24 /= s;
+    e31 /= s; e32 /= s; e33 /= s; e34 /= s;
+    e41 /= s; e42 /= s; e43 /= s; e44 /= s;
     return *this;
 }
 
@@ -310,6 +315,9 @@ Vector4<T> operator*(const Vector4<T>& v, const Matrix4x4<T>& m) {
 // 스칼라 나눗셈: / 연산자
 template<typename T>
 Matrix4x4<T> Matrix4x4<T>::operator/(T s) const {
+    if (s == 0) {
+        throw std::runtime_error("Division by zero in Matrix4x4::operator/");
+    }
     return Matrix4x4(
         e11 / s, e12 / s, e13 / s, e14 / s,
         e21 / s, e22 / s, e23 / s, e24 / s,
@@ -321,3 +329,5 @@ Matrix4x4<T> Matrix4x4<T>::operator/(T s) const {
 // 템플릿 명시적 인스턴스화 (필요한 경우 사용)
 template class Matrix4x4<float>;
 template class Matrix4x4<double>;
+
+#endif // MATRIX4X4_CPP

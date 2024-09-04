@@ -38,6 +38,7 @@ public:
     static Matrix3x3 rotationX(T angle);    // Pitch
     static Matrix3x3 rotationY(T angle);    // Yaw
     static Matrix3x3 rotationZ(T angle);    // Roll
+    Matrix3x3<T> rotation(T pitch, T yaw, T roll, const std::string& order = "xyz");
 
     // 행렬식
     T determinant() const;

@@ -54,9 +54,6 @@
     <ClInclude Include="include\Vector4.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Websocket.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="include\Quaternion.tpp">
@@ -98,9 +95,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Vector4.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Websocket.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

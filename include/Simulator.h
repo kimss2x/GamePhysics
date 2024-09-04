@@ -7,14 +7,15 @@
 
 class Simulator {
 public:
-    Simulator(double Vm, double Alpha, double Gamma, double Yb, double X, double Z, double Length, double Width, double Height, double tInc);
+    Simulator(double Vm, double Alpha, double Gamma, double Yb, double X, double Z, double Length, double Width, double Height, double tInc, double floorHeight = 0.0);
     
     void initialize();
     int runSimulationStep();
     std::string getSimulationStatus() const;
+    double getSimulationTime() const;
 
 private:
-    double Vm, Alpha, Gamma, Yb, X, Z, Length, Width, Height, simulationTime, tInc;
+    double Vm, Alpha, Gamma, Yb, X, Z, Length, Width, Height, simulationTime, tInc, floorHeight;
     int status;
     
     PhysicsObject projectile;

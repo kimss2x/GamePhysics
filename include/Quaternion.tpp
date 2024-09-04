@@ -15,28 +15,30 @@ template<typename T>
 Quaternion<T>::Quaternion(const Vector4<T>& vec) : n(vec.w), v(vec.x, vec.y, vec.z) {}
 
 template<typename T>
-T Quaternion<T>::Magnitude(void) const {
+T Quaternion<T>::magnitude(void) const {
     return std::sqrt(n * n + v.x * v.x + v.y * v.y + v.z * v.z);
 }
 
 template<typename T>
-void Quaternion<T>::Normalize(void) {
-    T mag = Magnitude();
+void Quaternion<T>::normalize(void) {
+    T mag = magnitude();
     if (mag > 0) {
         n /= mag;
         v.x /= mag;
         v.y /= mag;
         v.z /= mag;
+    } else {
+        throw std::runtime_error("Cannot normalize a quaternion with zero magnitude.");
     }
 }
 
 template<typename T>
-Vector4<T> Quaternion<T>::ToVector4() const {
+Vector4<T> Quaternion<T>::toVector4() const {
     return Vector4<T>(v.x, v.y, v.z, n);
 }
 
 template<typename T>
-Matrix3x3<T> Quaternion<T>::ToMatrix3x3() const {
+Matrix3x3<T> Quaternion<T>::toMatrix3x3() const {
     Matrix3x3<T> matrix;
     T xx = v.x * v.x;
     T yy = v.y * v.y;
@@ -64,7 +66,7 @@ Matrix3x3<T> Quaternion<T>::ToMatrix3x3() const {
 }
 
 template<typename T>
-Matrix4x4<T> Quaternion<T>::ToMatrix4x4() const {
+Matrix4x4<T> Quaternion<T>::toMatrix4x4() const {
     Matrix4x4<T> matrix;
     T xx = v.x * v.x;
     T yy = v.y * v.y;
@@ -101,13 +103,13 @@ Matrix4x4<T> Quaternion<T>::ToMatrix4x4() const {
 
 template<typename T>
 Quaternion<T> Quaternion<T>::fromAngularVelocity(const Vector3<T>& angularVelocity, T deltaTime) {
-    T angle = angularVelocity.Magnitude() * deltaTime;
+    T angle = angularVelocity.magnitude() * deltaTime;
     if (angle < std::numeric_limits<T>::epsilon()) {
         return Quaternion<T>(1, 0, 0, 0);
     }
 
     Vector3<T> axis = angularVelocity;
-    axis.Normalize();
+    axis.normalize();
     T halfAngle = angle / static_cast<T>(2.0);
     T sinHalfAngle = std::sin(halfAngle);
 
@@ -116,13 +118,13 @@ Quaternion<T> Quaternion<T>::fromAngularVelocity(const Vector3<T>& angularVeloci
 
 // QGetAngle: 회전 각도 반환
 template<typename T>
-T Quaternion<T>::QGetAngle(void) const {
+T Quaternion<T>::qGetAngle(void) const {
     return static_cast<T>(2.0) * std::acos(n);
 }
 
 // QGetAxis: 회전 축 반환
 template<typename T>
-Vector3<T> Quaternion<T>::QGetAxis(void) const {
+Vector3<T> Quaternion<T>::qGetAxis(void) const {
     T sinThetaOver2 = std::sqrt(static_cast<T>(1.0) - n * n);
     if (sinThetaOver2 < static_cast<T>(1e-6)) {
         return Vector3<T>(static_cast<T>(1.0), static_cast<T>(0.0), static_cast<T>(0.0)); // 임의의 축 반환
@@ -133,28 +135,28 @@ Vector3<T> Quaternion<T>::QGetAxis(void) const {
 
 // QRotate: 벡터 회전
 template<typename T>
-Vector3<T> Quaternion<T>::QRotate(const Vector3<T>& v) const {
+Vector3<T> Quaternion<T>::qRotate(const Vector3<T>& v) const {
     Quaternion<T> qVec(static_cast<T>(0), v.x, v.y, v.z);
     Quaternion<T> qConjugate = ~(*this);
     Quaternion<T> result = (*this) * qVec * qConjugate;
-    return result.GetVector();
+    return result.getVector();
 }
 
 // QVRotate: 벡터를 사용하여 쿼터니언 회전
 template<typename T>
-Quaternion<T> Quaternion<T>::QVRotate(const Vector3<T>& axis, T angle) {
+Quaternion<T> Quaternion<T>::qVRotate(const Vector3<T>& axis, T angle) {
     T halfAngle = angle / static_cast<T>(2.0);
     T sinHalfAngle = std::sin(halfAngle);
     return Quaternion<T>(std::cos(halfAngle), axis.x * sinHalfAngle, axis.y * sinHalfAngle, axis.z * sinHalfAngle);
 }
 
 template<typename T>
-Vector3<T> Quaternion<T>::GetVector(void) const {
+Vector3<T> Quaternion<T>::getVector(void) const {
     return v;
 }
 
 template<typename T>
-T Quaternion<T>::GetScalar(void) const {
+T Quaternion<T>::getScalar(void) const {
     return n;
 }
 
@@ -187,10 +189,10 @@ Quaternion<T>& Quaternion<T>::operator/=(T s) {
 }
 
 template<typename T>
-Quaternion<T> Quaternion<T>::MakeQFromEulerAngles(T pitch, T yaw, T roll) {
-    T halfPitch = DegToRad(pitch) / static_cast<T>(2.0);
-    T halfYaw = DegToRad(yaw) / static_cast<T>(2.0);
-    T halfRoll = DegToRad(roll) / static_cast<T>(2.0);
+Quaternion<T> Quaternion<T>::makeQFromEulerAngles(T pitch, T yaw, T roll) {
+    T halfPitch = Angle::degToRad(pitch) / static_cast<T>(2.0);
+    T halfYaw = Angle::degToRad(yaw) / static_cast<T>(2.0);
+    T halfRoll = Angle::degToRad(roll) / static_cast<T>(2.0);
 
     T cosHalfPitch = std::cos(halfPitch);
     T sinHalfPitch = std::sin(halfPitch);
@@ -208,26 +210,28 @@ Quaternion<T> Quaternion<T>::MakeQFromEulerAngles(T pitch, T yaw, T roll) {
 }
 
 template<typename T>
-Vector3<T> Quaternion<T>::MakeEulerAnglesFromQ(void) const {
+Vector3<T> Quaternion<T>::makeEulerAnglesFromQ(void) const {
     T pitch = std::atan2(static_cast<T>(2.0) * (n * v.x + v.y * v.z), static_cast<T>(1.0) - static_cast<T>(2.0) * (v.x * v.x + v.y * v.y));
     T yaw = std::asin(static_cast<T>(2.0) * (n * v.y - v.z * v.x));
     T roll = std::atan2(static_cast<T>(2.0) * (n * v.z + v.x * v.y), static_cast<T>(1.0) - static_cast<T>(2.0) * (v.y * v.y + v.z * v.z));
-    return Vector3<T>(RadToDeg(pitch), RadToDeg(yaw), RadToDeg(roll));
+    
+    return Vector3<T>(Angle::radToDeg(pitch), Angle::radToDeg(yaw), Angle::radToDeg(roll));
 }
 
+
 template<typename T>
-Quaternion<T> Quaternion<T>::ApplyRotationOrder(const std::string& order, const Vector3<T>& angles) const {
+Quaternion<T> Quaternion<T>::applyRotationOrder(const std::string& order, const Vector3<T>& angles) const {
     Quaternion q = *this;
     for (char axis : order) {
         switch (axis) {
             case 'x':
-                q = q * QVRotate(Vector3<T>(static_cast<T>(1.0), static_cast<T>(0.0), static_cast<T>(0.0)), angles.x);
+                q = q * qVRotate(Vector3<T>(static_cast<T>(1.0), static_cast<T>(0.0), static_cast<T>(0.0)), angles.x);
                 break;
             case 'y':
-                q = q * QVRotate(Vector3<T>(static_cast<T>(0.0), static_cast<T>(1.0), static_cast<T>(0.0)), angles.y);
+                q = q * qVRotate(Vector3<T>(static_cast<T>(0.0), static_cast<T>(1.0), static_cast<T>(0.0)), angles.y);
                 break;
             case 'z':
-                q = q * QVRotate(Vector3<T>(static_cast<T>(0.0), static_cast<T>(0.0), static_cast<T>(1.0)), angles.z);
+                q = q * qVRotate(Vector3<T>(static_cast<T>(0.0), static_cast<T>(0.0), static_cast<T>(1.0)), angles.z);
                 break;
             default:
                 throw std::invalid_argument("Invalid rotation order");
@@ -268,13 +272,22 @@ Quaternion<T> operator*(T s, const Quaternion<T>& q) {
 }
 
 template<typename T>
-Vector3<T> operator*(const Matrix3x3<T>& m, const Quaternion<T>& q) {
-    return m * q.ToMatrix3x3();
+Vector3<T> operator*(const Matrix3x3<T>& m, const Vector3<T>& v) {
+    return Vector3<T>(
+        m.e11 * v.x + m.e12 * v.y + m.e13 * v.z,
+        m.e21 * v.x + m.e22 * v.y + m.e23 * v.z,
+        m.e31 * v.x + m.e32 * v.y + m.e33 * v.z
+    );
 }
 
 template<typename T>
-Vector4<T> operator*(const Matrix4x4<T>& m, const Quaternion<T>& q) {
-    return m * q.ToMatrix4x4();
+Vector4<T> operator*(const Matrix4x4<T>& m, const Vector4<T>& v) {
+    return Vector4<T>(
+        m.e11 * v.x + m.e12 * v.y + m.e13 * v.z + m.e14 * v.w,
+        m.e21 * v.x + m.e22 * v.y + m.e23 * v.z + m.e24 * v.w,
+        m.e31 * v.x + m.e32 * v.y + m.e33 * v.z + m.e34 * v.w,
+        m.e41 * v.x + m.e42 * v.y + m.e43 * v.z + m.e44 * v.w
+    );
 }
 
 template<typename T>

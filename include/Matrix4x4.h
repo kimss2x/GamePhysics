@@ -38,6 +38,7 @@ public:
     static Matrix4x4 rotationX(T angle);    // Pitch
     static Matrix4x4 rotationY(T angle);    // Yaw
     static Matrix4x4 rotationZ(T angle);    // Roll
+    Matrix4x4<T> rotation(T pitch, T yaw, T roll, const std::string& order="xyz");
 
     // 행렬식 계산
     T determinant() const;
@@ -67,6 +68,7 @@ public:
     // 벡터4와 행렬 간의 곱셈
     template<typename U>
     friend Vector4<U> operator*(const Vector4<U>& v, const Matrix4x4<U>& m);
+
 };
 
 #endif // MATRIX4X4_H
