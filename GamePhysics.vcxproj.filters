@@ -16,6 +16,12 @@
     <Filter Include="Build Scripts">
       <UniqueIdentifier>{c52c307b-f650-401a-8615-cbb7417a3047}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Configuration Files">
+      <UniqueIdentifier>{a2c33f9f-cca2-4697-b2c9-cbefa8c32067}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Documentation">
+      <UniqueIdentifier>{7f75a6c5-c8ed-4f14-9331-084680eba5ca}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Angle.h">
@@ -58,6 +64,12 @@
     </None>
     <None Include="CMakeSettings.json">
       <Filter>Build Scripts</Filter>
+    </None>
+    <None Include=".gitignore">
+      <Filter>Configuration Files</Filter>
+    </None>
+    <None Include="README.md">
+      <Filter>Documentation</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

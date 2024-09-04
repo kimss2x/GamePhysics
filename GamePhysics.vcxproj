@@ -32,8 +32,10 @@
     <ClInclude Include="include\Websocket.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".gitignore" />
     <None Include="CMakeSettings.json" />
     <None Include="include\Quaternion.tpp" />
+    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Angle.cpp" />
