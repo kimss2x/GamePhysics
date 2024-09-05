@@ -19,42 +19,41 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\Angle.h" />
-    <ClInclude Include="include\Constants.h" />
-    <ClInclude Include="include\Logging.h" />
-    <ClInclude Include="include\Matrix3x3.h" />
-    <ClInclude Include="include\Matrix4x4.h" />
-    <ClInclude Include="include\PhysicsObject.h" />
-    <ClInclude Include="include\Quaternion.h" />
-    <ClInclude Include="include\Simulator.h" />
-    <ClInclude Include="include\Vector3.h" />
-    <ClInclude Include="include\Vector4.h" />
+    <None Include="..\.gitignore" />
+    <None Include="..\include\Quaternion.tpp" />
+    <None Include="..\README.md" />
   </ItemGroup>
   <ItemGroup>
-    <None Include=".gitignore" />
-    <None Include="CMakeSettings.json" />
-    <None Include="include\Quaternion.tpp" />
-    <None Include="README.md" />
+    <ClInclude Include="..\include\Angle.h" />
+    <ClInclude Include="..\include\Constants.h" />
+    <ClInclude Include="..\include\Logging.h" />
+    <ClInclude Include="..\include\Matrix3x3.h" />
+    <ClInclude Include="..\include\Matrix4x4.h" />
+    <ClInclude Include="..\include\Particle.h" />
+    <ClInclude Include="..\include\PhysicsObject.h" />
+    <ClInclude Include="..\include\Quaternion.h" />
+    <ClInclude Include="..\include\Simulator.h" />
+    <ClInclude Include="..\include\Utils.h" />
+    <ClInclude Include="..\include\Vector3.h" />
+    <ClInclude Include="..\include\Vector4.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Angle.cpp" />
-    <ClCompile Include="src\Logging.cpp" />
-    <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\Matrix3x3.cpp" />
-    <ClCompile Include="src\Matrix4x4.cpp" />
-    <ClCompile Include="src\PhysicsObject.cpp" />
-    <ClCompile Include="src\Simulator.cpp" />
-    <ClCompile Include="src\Vector3.cpp" />
-    <ClCompile Include="src\Vector4.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="CMakeLists.txt" />
+    <ClCompile Include="..\src\Angle.cpp" />
+    <ClCompile Include="..\src\Logging.cpp" />
+    <ClCompile Include="..\src\Matrix3x3.cpp" />
+    <ClCompile Include="..\src\Matrix4x4.cpp" />
+    <ClCompile Include="..\src\PhysicsObject.cpp" />
+    <ClCompile Include="..\src\Simulator.cpp" />
+    <ClCompile Include="..\src\Vector3.cpp" />
+    <ClCompile Include="..\src\Vector4.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
-    <ProjectGuid>{53188938-6334-43EE-B746-E9820A3794A3}</ProjectGuid>
+    <ProjectGuid>{BF459577-0AB8-4855-97E0-A19E835ED145}</ProjectGuid>
     <Keyword>ManagedCProj</Keyword>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>002-Particle</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -138,7 +137,7 @@
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;GAMEPHYSICS_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include</AdditionalIncludeDirectories>
       <LanguageStandard_C>Default</LanguageStandard_C>
     </ClCompile>
     <Link>

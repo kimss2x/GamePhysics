@@ -59,35 +59,29 @@ void GetUserInput() {
     }
 }
 
-int main() {
-    // 유저 입력 받기
-    GetUserInput();
-
-    // 시뮬레이터 객체 생성 및 초기화
-    Simulator simulator(Vm, Alpha, Gamma, Yb, X, Z, Length, Width, Height, tInc);
-    simulator.initialize();
-
-    std::cout << "Starting simulation...\n";
-
-    // 시뮬레이션 루프
+void runSimulation(Simulator& simulator) {
     while (simulator.runSimulationStep() == 0) {
-        std::string status = simulator.getSimulationStatus();   // 현재 상태 출력
+        std::string status = simulator.getSimulationStatus();
         std::cout << status << std::endl;
 
-        // 간단한 종료 조건: 시뮬레이션 시간이 길어지면 자동 종료
-        if (simulator.getSimulationTime() > 100.0) {            // 100초가 넘어가면 종료
+        if (simulator.getSimulationTime() > 100.0) {
             std::cout << "Simulation timed out.\n";
             break;
         }
     }
 
-    // 최종 시뮬레이션 결과 출력
     if (simulator.runSimulationStep() == 1) {
         std::cout << "Target hit!" << std::endl;
     }
     else {
         std::cout << "Simulation ended without a hit." << std::endl;
     }
+}
 
+int main() {
+    GetUserInput();
+    Simulator simulator(Vm, Alpha, Gamma, Yb, X, Z, Length, Width, Height, tInc);
+    simulator.initialize();
+    runSimulation(simulator);
     return 0;
 }
